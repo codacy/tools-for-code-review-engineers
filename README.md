@@ -1,4 +1,4 @@
-# codacy-public-template
+# List of tools for code review engineers
 
 Template repository for new public repositories. 
 
