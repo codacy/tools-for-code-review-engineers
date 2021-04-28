@@ -1,0 +1,97 @@
+name: Comment issue on Jira
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  jira:
+    env:
+      JIRA_CREATE_COMMENT_AUTO: ${{ secrets.JIRA_CREATE_COMMENT_AUTO }}
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Start workflow if JIRA_CREATE_COMMENT_AUTO is enabled
+        if: env.JIRA_CREATE_COMMENT_AUTO == 'true'
+        run: echo "Starting workflow"
+
+      - name: Check GitHub Issue type
+        if: env.JIRA_CREATE_COMMENT_AUTO == 'true'
+        id: github_issue_type
+        uses: actions/github-script@v2.0.0
+        with:
+          result-encoding: string
+          script: |
+            // An Issue can be a pull request, you can identify pull requests by the pull_request key
+            const pullRequest = ${{ toJson(github.event.issue.pull_request) }}
+            if(pullRequest) {
+              return "pull-request"
+            } else {
+              return "issue"
+            }
+
+      - name: Check if GitHub Issue has JIRA_ISSUE_LABEL
+        if: env.JIRA_CREATE_COMMENT_AUTO == 'true'
+        id: github_issue_has_jira_issue_label
+        uses: actions/github-script@v2.0.0
+        env:
+          JIRA_ISSUE_LABEL: ${{ secrets.JIRA_ISSUE_LABEL }}
+        with:
+          result-encoding: string
+          script: |
+            const labels = ${{ toJson(github.event.issue.labels) }}
+            if(labels.find(label => label.name == process.env.JIRA_ISSUE_LABEL)) {
+              return "true"
+            } else {
+              return "false"
+            }
+
+      - name: Continue workflow only for Issues (not Pull Requests) tagged with JIRA_ISSUE_LABEL
+        if: env.JIRA_CREATE_COMMENT_AUTO == 'true' && env.GITHUB_ISSUE_TYPE == 'issue' && env.GITHUB_ISSUE_HAS_JIRA_ISSUE_LABEL == 'true'
+        env:
+          GITHUB_ISSUE_TYPE: ${{ steps.github_issue_type.outputs.result }}
+          GITHUB_ISSUE_HAS_JIRA_ISSUE_LABEL: ${{ steps.github_issue_has_jira_issue_label.outputs.result }}
+        run: echo "GitHub Issue is tracked on Jira, eligilbe to be commented"
+
+      - name: Jira Login
+        if: env.JIRA_CREATE_COMMENT_AUTO == 'true' && env.GITHUB_ISSUE_TYPE == 'issue' && env.GITHUB_ISSUE_HAS_JIRA_ISSUE_LABEL == 'true'
+        id: login
+        uses: atlassian/gajira-login@v2.0.0
+        env:
+          GITHUB_ISSUE_TYPE: ${{ steps.github_issue_type.outputs.result }}
+          GITHUB_ISSUE_HAS_JIRA_ISSUE_LABEL: ${{ steps.github_issue_has_jira_issue_label.outputs.result }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+      - name: Extract Jira number
+        if: env.JIRA_CREATE_COMMENT_AUTO == 'true' && env.GITHUB_ISSUE_TYPE == 'issue' && env.GITHUB_ISSUE_HAS_JIRA_ISSUE_LABEL == 'true'
+        id: extract_jira_number
+        uses: actions/github-script@v2.0.0
+        env:
+          GITHUB_ISSUE_TYPE: ${{ steps.github_issue_type.outputs.result }}
+          GITHUB_ISSUE_HAS_JIRA_ISSUE_LABEL: ${{ steps.github_issue_has_jira_issue_label.outputs.result }}
+          JIRA_PROJECT: ${{ secrets.JIRA_PROJECT }}
+          GITHUB_TITLE: ${{ github.event.issue.title }}
+        with:
+          script: |
+            const jiraTaskRegex = new RegExp(`\\\[(${process.env.JIRA_PROJECT}-[0-9]+?)\\\]`)
+            return process.env.GITHUB_TITLE.match(jiraTaskRegex)[1]
+          result-encoding: string
+
+      - name: Jira Add comment on issue
+        if: env.JIRA_CREATE_COMMENT_AUTO == 'true' && env.GITHUB_ISSUE_TYPE == 'issue' && env.GITHUB_ISSUE_HAS_JIRA_ISSUE_LABEL == 'true'
+        id: add_comment_jira_issue
+        uses: atlassian/gajira-comment@v2.0.2
+        env:
+          GITHUB_ISSUE_TYPE: ${{ steps.github_issue_type.outputs.result }}
+          GITHUB_ISSUE_HAS_JIRA_ISSUE_LABEL: ${{ steps.github_issue_has_jira_issue_label.outputs.result }}
+        with:
+          issue: ${{ steps.extract_jira_number.outputs.result }}
+          comment: |
+            GitHub Comment : ${{ github.event.comment.user.login }}
+            {quote}${{ github.event.comment.body }}{quote}
+            ----
+            {panel}
+            _[Github permalink |${{ github.event.comment.html_url }}]_
+            {panel}

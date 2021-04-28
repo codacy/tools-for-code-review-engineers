@@ -1,0 +1,90 @@
+name: Create issue on Jira
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  jira:
+    env:
+      JIRA_CREATE_ISSUE_AUTO: ${{ secrets.JIRA_CREATE_ISSUE_AUTO }}
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Start workflow if JIRA_CREATE_ISSUE_AUTO is enabled
+        if: env.JIRA_CREATE_ISSUE_AUTO == 'true'
+        run: echo "Starting workflow"
+
+      - name: Jira Login
+        if: env.JIRA_CREATE_ISSUE_AUTO == 'true'
+        id: login
+        uses: atlassian/gajira-login@v2.0.0
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+      - name: Jira Create issue
+        if: env.JIRA_CREATE_ISSUE_AUTO == 'true'
+        id: create_jira_issue
+        uses: atlassian/gajira-create@v2.0.1
+        with:
+          project: ${{ secrets.JIRA_PROJECT }}
+          issuetype: ${{ secrets.JIRA_ISSUE_TYPE }}
+          summary: "[GH#${{ github.event.issue.number }}]  ${{ github.event.issue.title }}"
+          description: |
+            ${{ github.event.issue.body }}
+            ----
+            {panel}
+            _[Github permalink |${{ github.event.issue.html_url }}]_
+            {panel}
+
+      - name: Update Jira issue if JIRA_UPDATE_ISSUE_BODY is defined
+        if: env.JIRA_CREATE_ISSUE_AUTO == 'true' && env.JIRA_UPDATE_ISSUE_BODY != ''
+        env:
+          JIRA_UPDATE_ISSUE_BODY: ${{ secrets.JIRA_UPDATE_ISSUE_BODY }}
+        run: >
+          curl
+          -u ${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}
+          -X PUT
+          -H 'Content-Type: application/json'
+          -d '${{ env.JIRA_UPDATE_ISSUE_BODY }}'
+          ${{ secrets.JIRA_BASE_URL }}/rest/api/2/issue/${{ steps.create_jira_issue.outputs.issue }}
+
+      - name: Update GitHub issue
+        if: env.JIRA_CREATE_ISSUE_AUTO == 'true'
+        uses: actions/github-script@v2.0.0
+        env:
+          JIRA_ISSUE_NUMBER: ${{ steps.create_jira_issue.outputs.issue }}
+          GITHUB_ORIGINAL_TITLE: ${{ github.event.issue.title }}
+          JIRA_ISSUE_LABEL: ${{ secrets.JIRA_ISSUE_LABEL }}
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const newTitle = `[${process.env.JIRA_ISSUE_NUMBER}] ${process.env.GITHUB_ORIGINAL_TITLE}`
+            github.issues.update({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: newTitle
+            })
+            github.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: [process.env.JIRA_ISSUE_LABEL]
+            })
+
+
+      - name: Add comment after sync
+        if: env.JIRA_CREATE_ISSUE_AUTO == 'true'
+        uses: actions/github-script@v2.0.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Internal ticket created : [${{ steps.create_jira_issue.outputs.issue }}](${{ secrets.JIRA_BASE_URL }}/browse/${{ steps.create_jira_issue.outputs.issue }})'
+            })
