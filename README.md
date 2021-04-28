@@ -7,7 +7,7 @@ Feel free to commit with your suggestions.
 | Tool | Description | URL |
 | ---- | ----------- | --- |
 | Gitpod | Gitpod is an open-source Kubernetes application for automated and ready-to-code development environments that blends in your existing workflow. It enables you to describe your dev environment as code and start instant and fresh development environments for each new task directly from your browser. | https://gitpod.io/ |
-| Pullreminders (from Pull Panda) | Review and merge pull requests faster with Slack reminders and notifications. | https://pullreminders.com/ | N/A |  
+| Pull Reminders (from Pull Panda) | Review and merge pull requests faster with Slack reminders and notifications. | https://pullreminders.com/ | N/A |  
 | Pull Assigner (from Pull Panda) | Pull Assigner assigns code reviews to make your process more balanced and efficient. 1.Organize reviewers into groups using GitHub Teams. 2. Assign pull requests to teams or automate it with CODEOWNERS. 3. Pull Assigner auto-assigns one or more members of the team as reviewers. | https://pullpanda.com/assigner |
 | Gitify | Gitify is all about making your life easier. Sitting on your menu bar, it informs you for any GitHub notifications without being annoying and of course without adverts. It just gets the job done. Works with GitHub and GitHub Enterprise. You can even connect multiple accounts. | https://www.gitify.io/ |
 | Quests | Quests is similar to Gitify but with one important difference: Quest also supports GitLab. | https://steamclock.com/quests/ |
