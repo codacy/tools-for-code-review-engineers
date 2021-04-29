@@ -2,9 +2,9 @@
 
 ![](https://github.com/codacy/add-ons-for-code-reviews/blob/master/List%20of%20tools%20for%20%5BCode%20Review%5D%20Engineers.png)
 
-If you perform code reviews at your company here's a list of tools we hope it adds value to your GitHub workflow.
-This list was recently created and we'll keep adding more tools every week.
-Feel free to commit with your suggestions.
+If you perform code reviews at your company we hope that this list of tools adds value to your GitHub workflow.
+We created this list recently and we'll periodically keep adding more tools.
+Feel free to contribute your suggestions.
 
 | Tool | Description | URL |
 | ---- | ----------- | --- |
