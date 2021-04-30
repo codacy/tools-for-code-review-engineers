@@ -1,6 +1,6 @@
 # List of tools for code review engineers
 
-![](https://github.com/codacy/add-ons-for-code-reviews/blob/master/List%20of%20tools%20for%20%5BCode%20Review%5D%20Engineers.png)
+![List of tools for code review engineers](images/title.png)
 
 If you perform code reviews at your company here's a list of tools we hope it adds value to your GitHub workflow.
 This list was recently created and we'll keep adding more tools every week.
@@ -16,8 +16,3 @@ Feel free to commit with your suggestions.
 | DevHub | Create columns for the repositories and people that matters to you; Receive Desktop Push Notifications; Manage Notifications, Issues, Pull Requests & Activities; Bookmark things for later. | https://devhubapp.com/ |
 | Bolt | Designed to close the gap between code development and security, Bolt helps GitHub developers create more secure products. It detects and alerts you on vulnerable open source components in your repository. | https://www.whitesourcesoftware.com/free-developer-tools/bolt |
  | Imgbot | Imgbot is a friendly robot that optimizes your images and saves you time by leveraging the power of pull requests. | https://imgbot.net/ |
-
-## GitHub actions
-
-This repository has the common GitHub actions that we want to have accross all of our public repositories.
-They should be kept at `.github/workflows`
