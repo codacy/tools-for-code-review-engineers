@@ -16,3 +16,4 @@ Feel free to contribute your suggestions.
 | [DevHub](https://devhubapp.com/) | Create columns for the repositories and people that matter to you; Receive Desktop Push Notifications; Manage Notifications, Issues, Pull Requests & Activities; Bookmark things for later. |
 | [Bolt](https://www.whitesourcesoftware.com/free-developer-tools/bolt) | Designed to close the gap between code development and security, Bolt helps GitHub developers create more secure products. It detects and alerts you of vulnerable open source components in your repository. |
 | [Imgbot](https://imgbot.net/) | Imgbot is a friendly robot that optimizes your images and saves you time by leveraging the power of pull requests. |
+| [ReadyforReview](https://www.readyforreview.com/) | Designed specifically for doing code reviews, ReadyforReview makes it a breeze to review merge requests for GitLab.  |
