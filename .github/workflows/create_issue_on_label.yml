@@ -18,7 +18,7 @@ jobs:
       - name: Jira Login
         if: github.event.label.name == env.JIRA_ISSUE_LABEL
         id: login
-        uses: atlassian/gajira-login@v2.0.0
+        uses: atlassian/gajira-login@90a599561baaf8c05b080645ed73db7391c246ed # v2.0.0
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
@@ -27,7 +27,7 @@ jobs:
       - name: Jira Create issue
         if: github.event.label.name == env.JIRA_ISSUE_LABEL
         id: create_jira_issue
-        uses: atlassian/gajira-create@v2.0.1
+        uses: atlassian/gajira-create@c0a9c69ac9d6aa063fed57201e55336ada860183 # v2.0.1
         with:
           project: ${{ secrets.JIRA_PROJECT }}
           issuetype: ${{ secrets.JIRA_ISSUE_TYPE }}
@@ -53,7 +53,7 @@ jobs:
 
       - name: Change Title
         if: github.event.label.name == env.JIRA_ISSUE_LABEL
-        uses: actions/github-script@v2.0.0
+        uses: actions/github-script@6e5ee1dc1cb3740e5e5e76ad668e3f526edbfe45 # v2.0.0
         env:
           JIRA_ISSUE_NUMBER: ${{ steps.create_jira_issue.outputs.issue }}
           GITHUB_ORIGINAL_TITLE: ${{ github.event.issue.title }}
@@ -70,7 +70,7 @@ jobs:
 
       - name: Add comment after sync
         if: github.event.label.name == env.JIRA_ISSUE_LABEL
-        uses: actions/github-script@v2.0.0
+        uses: actions/github-script@6e5ee1dc1cb3740e5e5e76ad668e3f526edbfe45 # v2.0.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
